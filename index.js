@@ -30,8 +30,13 @@ app.get('/attractions', async (req, res) => {
 
 app.get('/attractions/:id', async (req, res) => {
     try {
-        const [results] = await promisePool.query('SELECT * FROM attractions');
-        res.json(results);
+        const id = req.params.id;
+        const [results] = await promisePool.query('SELECT * FROM attractions WHERE id = ?', [id]);
+        if (results.length === 0) {
+            res.status(404).json({ error: 'Attraction not found' });
+        } else {
+            res.json(results[0]);
+        }
     } catch (err) {
         console.error('Error executing query:', err.stack);
         res.status(500).json({ error: 'An error occurred' });
